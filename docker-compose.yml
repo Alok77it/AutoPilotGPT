@@ -1,0 +1,51 @@
+version: "3.9"
+
+services:
+  fastapi:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    networks:
+      - devnet
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    networks:
+      - devnet
+
+  jenkins:
+    image: jenkins/jenkins:lts
+    ports:
+      - "8081:8080"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    networks:
+      - devnet
+
+  sonarqube:
+    image: sonarqube:latest
+    ports:
+      - "9000:9000"
+    networks:
+      - devnet
+
+  n8n:
+    image: n8nio/n8n
+    ports:
+      - "5678:5678"
+    networks:
+      - devnet
+    environment:
+      - GENERIC_TIMEZONE=Asia/Kolkata
+
+volumes:
+  jenkins_home:
+
+networks:
+  devnet:
+    driver: bridge
+
