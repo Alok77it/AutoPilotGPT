@@ -15,7 +15,7 @@ pipeline {
     stage('Clone Repo') {
       steps {
         git url: "https://github.com/aarensh/IPST", 
-            branch: "ipst",
+            branch: "master",
             credentialsId: "Github_token"
       }
     }
