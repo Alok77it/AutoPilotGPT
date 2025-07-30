@@ -1,36 +1,43 @@
-pipeline{
+pipeline {
   agent any
+
   environment {
-    IMAGE_NAME = "aarensh/Jenkin_image"
+    IMAGE_NAME = "aarensh/jenkin_image"
     IMAGE_TAG = "IPST"
   }
+
   triggers {
     pollSCM('* * * * *')
   }
+
   stages {
-    stage {
+
+    stage('Clone Repo') {
       steps {
         git url: "https://github.com/aarensh/IPST", 
             branch: "ipst",
             credentialsId: "Github_token"
-        }
       }
-    stage {
+    }
+
+    stage('Build Docker Image') {
       steps {
         script {
-          dockerImage = docker.build("${IMAGE_NAME}:${IMAGE_TAG}", ".frontend/" )
+          // "." means Jenkins workspace, so ".frontend/" is wrong unless that's a subfolder in the root
+          dockerImage = docker.build("${IMAGE_NAME}:${IMAGE_TAG}", "./frontend")
         }
       }
     }
-      stage('Login and Push to DockerHub') {
-        steps {
-          script {
-            docker.withRegistry('https://index.docker.io/v1/', 'dockerhub_credentials') {
-                dockerImage.push("${IMAGE_TAG}")
-            }
+
+    stage('Login and Push to DockerHub') {
+      steps {
+        script {
+          docker.withRegistry('https://index.docker.io/v1/', 'dockerhub_credentials') {
+            dockerImage.push("${IMAGE_TAG}")
           }
         }
       }
-  }
+    }
+
+  } // end stages
 }
-  
